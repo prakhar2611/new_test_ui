@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "8ec80bf6-607d-48f4-ac10-3dbd14907844",
+		"_postman_id": "9f27e2a1-e8b4-48f9-8d6f-f01b423aaaff",
 		"name": "Agent & Orchestrator API",
 		"description": "API for managing and running AI agents and orchestrators with OpenAI function calling capabilities.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38766574"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -527,6 +526,194 @@
 				}
 			],
 			"description": "Endpoints for managing and running orchestrators."
+		},
+		{
+			"name": "Conversations",
+			"item": [
+				{
+					"name": "Get All Conversations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/conversations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"conversations",
+								""
+							]
+						},
+						"description": "Retrieve a list of all available conversations."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversation by ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Set conversation ID if not already set",
+									"if (!pm.environment.get('conversationId') && pm.environment.get('orchestratorId')) {",
+									"    pm.environment.set('conversationId', pm.environment.get('orchestratorId'));",
+									"    console.log('Using orchestratorId as conversationId: ' + pm.environment.get('conversationId'));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/conversations/{{conversationId}}?limit=10&offset=0&sort=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"conversations",
+								"{{conversationId}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit the number of messages returned"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset for pagination"
+								},
+								{
+									"key": "sort",
+									"value": "desc",
+									"description": "Sort order (asc or desc)"
+								},
+								{
+									"key": "start_date",
+									"value": "2023-01-01",
+									"description": "Filter messages after this date",
+									"disabled": true
+								},
+								{
+									"key": "end_date",
+									"value": "2023-12-31",
+									"description": "Filter messages before this date",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieve conversation history by ID with optional filtering and pagination."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Conversations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/conversations/search?query=clickhouse&limit=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"conversations",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "clickhouse",
+									"description": "Search term to look for in messages"
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Maximum number of results to return"
+								}
+							]
+						},
+						"description": "Search all conversations for messages containing the specified query."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Conversation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Set conversation ID if not already set",
+									"if (!pm.environment.get('conversationId') && pm.environment.get('orchestratorId')) {",
+									"    pm.environment.set('conversationId', pm.environment.get('orchestratorId'));",
+									"    console.log('Using orchestratorId as conversationId: ' + pm.environment.get('conversationId'));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/conversations/{{conversationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"conversations",
+								"{{conversationId}}"
+							]
+						},
+						"description": "Delete a conversation history file."
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Conversation Messages",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Set conversation ID if not already set",
+									"if (!pm.environment.get('conversationId') && pm.environment.get('orchestratorId')) {",
+									"    pm.environment.set('conversationId', pm.environment.get('orchestratorId'));",
+									"    console.log('Using orchestratorId as conversationId: ' + pm.environment.get('conversationId'));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/conversations/{{conversationId}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"conversations",
+								"{{conversationId}}",
+								"messages"
+							]
+						},
+						"description": "Clear all messages from a conversation but keep the file."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for retrieving and managing conversation history."
 		}
 	],
 	"event": [
@@ -553,17 +740,26 @@
 		{
 			"key": "baseUrl",
 			"value": "http://localhost:8000",
-			"type": "string"
+			"type": "string",
+			"description": "Base URL for the API"
 		},
 		{
 			"key": "agentId",
 			"value": "",
-			"type": "string"
+			"type": "string",
+			"description": "ID of an agent to use for operations"
 		},
 		{
 			"key": "orchestratorId",
 			"value": "",
-			"type": "string"
+			"type": "string",
+			"description": "ID of an orchestrator to use for operations"
+		},
+		{
+			"key": "conversationId",
+			"value": "",
+			"type": "string",
+			"description": "ID of a conversation to use for operations (usually the same as orchestratorId)"
 		}
 	]
-}
+} 

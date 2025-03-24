@@ -23,6 +23,7 @@ import OrchestratorModal from '@/components/workflow/OrchestratorModal';
 import HelpOverlay from '@/components/workflow/HelpOverlay';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import useOrchestratorData from '@/hooks/useOrchestratorData';
+import ChatWindow from '@/components/workflow/ChatWindow';
 
 // Node types registration
 const nodeTypes = {
@@ -87,6 +88,9 @@ export default function WorkflowPage() {
   
   // State for help overlay
   const [showHelp, setShowHelp] = useState(false);
+  
+  // State for chat window
+  const [showChat, setShowChat] = useState(false);
 
   // Set the first orchestrator as selected when data loads
   useEffect(() => {
@@ -298,11 +302,12 @@ export default function WorkflowPage() {
   }, [isCreating, saveOrchestrator]);
   
   // Run the selected orchestrator
-  const handleRunOrchestrator = useCallback(async () => {
-    if (!selectedOrchestratorId) return;
+  const handleRunOrchestrator = useCallback(async (id, input = "Run the workflow") => {
+    const orchestratorId = id || selectedOrchestratorId;
+    if (!orchestratorId) return;
     
     try {
-      const result = await runOrchestrator(selectedOrchestratorId);
+      const result = await runOrchestrator(orchestratorId, input);
       return {
         response: result.response || "Orchestrator ran successfully.",
         success: true
@@ -487,6 +492,16 @@ export default function WorkflowPage() {
             orchestrator={orchestratorDetails}
             onEdit={handleEditOrchestrator}
             onRun={handleRunOrchestrator}
+            onOpenChat={() => setShowChat(true)}
+          />
+        )}
+        
+        {/* Chat Window for Testing */}
+        {showChat && orchestratorDetails && (
+          <ChatWindow
+            orchestrator={orchestratorDetails}
+            onRun={handleRunOrchestrator}
+            onClose={() => setShowChat(false)}
           />
         )}
         

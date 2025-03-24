@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function OrchestratorPanel({ orchestrator, onEdit, onRun }) {
+export default function OrchestratorPanel({ orchestrator, onEdit, onRun, onOpenChat }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [response, setResponse] = useState('');
@@ -80,7 +80,8 @@ export default function OrchestratorPanel({ orchestrator, onEdit, onRun }) {
               <li>Drag agents and tools from the sidebar to the canvas</li>
               <li>Connect the components by dragging between handles</li>
               <li>Click 'Edit' to modify orchestrator properties</li>
-              <li>Click 'Run' to test the orchestrator</li>
+              <li>Click 'Test in Chat' to interact with your orchestrator</li>
+              <li>Or use 'Quick Run' to test with a default prompt</li>
             </ol>
           </div>
         </div>
@@ -88,27 +89,38 @@ export default function OrchestratorPanel({ orchestrator, onEdit, onRun }) {
         {/* Actions Section */}
         <div>
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Actions</h3>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <button 
+                className="px-4 py-2 bg-primary text-black rounded-md text-sm hover:bg-blue-600 hover:text-white transition-colors flex-1"
+                onClick={onOpenChat}
+              >
+                Test in Chat
+              </button>
+              <button 
+                className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex-1"
+                onClick={onEdit}
+              >
+                Edit
+              </button>
+            </div>
+            
+            {/* Quick run button to show response directly in the panel */}
             <button 
-              className="px-4 py-2 bg-primary text-black rounded-md text-sm hover:bg-blue-600 hover:text-white transition-colors flex-1"
+              className="px-4 py-2 border border-primary text-primary bg-white dark:bg-transparent dark:text-primary dark:border-primary rounded-md text-sm hover:bg-primary/10 transition-colors"
               onClick={handleRun}
-              disabled={isLoading}
+              // disabled={isLoading}
+              disabled={true}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Running...
                 </span>
-              ) : 'Run'}
-            </button>
-            <button 
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex-1"
-              onClick={onEdit}
-            >
-              Edit
+              ) : 'Quick Run'}
             </button>
           </div>
         </div>
