@@ -22,7 +22,13 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui"],
-        mono: ["JetBrains Mono", "ui-monospace"]
+        mono: ["JetBrains Mono", "ui-monospace"],
+        'fira-code': ['"Fira Code"', "monospace"]
+      },
+      fontWeight: {
+        light: 300,
+        normal: 400,
+        medium: 500,
       },
       spacing: {
         base: "4px",

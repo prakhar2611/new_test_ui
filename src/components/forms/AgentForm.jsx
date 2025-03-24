@@ -60,8 +60,8 @@ export default function AgentForm({ onSubmit, onCancel, initialData = {}, availa
         
         <form onSubmit={handleSubmit}>
           {/* Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Name
             </label>
             <input
@@ -69,46 +69,46 @@ export default function AgentForm({ onSubmit, onCancel, initialData = {}, availa
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               required
             />
           </div>
           
           {/* System Prompt */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               System Prompt
             </label>
             <textarea
               name="system_prompt"
               value={formData.system_prompt}
               onChange={handleChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              rows={7}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-fira-code font-light text-base"
               required
             />
           </div>
           
           {/* Additional Prompt */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Additional Prompt
             </label>
             <textarea
               name="additional_prompt"
               value={formData.additional_prompt}
               onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              rows={5}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-fira-code font-light text-base"
             />
           </div>
           
           {/* Tools */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tools
             </label>
-            <div className="max-h-40 overflow-y-auto p-3 border border-gray-300 dark:border-gray-700 rounded-md grid grid-cols-2 gap-2">
+            <div className="max-h-48 overflow-y-auto p-4 border border-gray-300 dark:border-gray-700 rounded-md grid grid-cols-2 gap-3">
               {availableTools.length > 0 ? (
                 availableTools.map(tool => (
                   <div key={tool.name || tool} className="flex items-center">

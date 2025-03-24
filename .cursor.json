@@ -1,0 +1,24 @@
+{
+  "projectName": "Quantum Agent & Orchestrator Developer Tool",
+  "commitRules": {
+    "updateChangelog": true,
+    "format": "conventional",
+    "enforceTasks": true
+  },
+  "changelog": {
+    "path": "CHANGELOG.md",
+    "sections": [
+      "Added",
+      "Changed",
+      "Fixed",
+      "Workflow Updates"
+    ],
+    "dateFormat": "YYYY-MM-DD",
+    "autoCommit": true
+  },
+  "codeStyle": {
+    "indentation": "spaces",
+    "spacesPerIndent": 2,
+    "maxLineLength": 100
+  }
+} 
