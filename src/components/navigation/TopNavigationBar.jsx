@@ -1,16 +1,31 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function TopNavigationBar() {
+  const pathname = usePathname();
   const [selectedItem, setSelectedItem] = useState('agents');
+  
+  // Update selected item based on current path
+  useEffect(() => {
+    if (pathname === '/') {
+      setSelectedItem('agents');
+    } else if (pathname === '/workflow') {
+      setSelectedItem('workflows');
+    } else if (pathname === '/tests') {
+      setSelectedItem('tests');
+    } else if (pathname === '/analytics') {
+      setSelectedItem('analytics');
+    }
+  }, [pathname]);
   
   return (
     <div className="w-full bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
       {/* Left side - Logo and title */}
       <div className="flex items-center space-x-3">
-        <div className="text-primary font-bold text-xl">Quantum</div>
+        <Link href="/" className="text-primary font-bold text-xl">Quantum</Link>
         <div className="text-sm text-gray-500 dark:text-gray-400 hidden md:block">
           An interactive demo for developers to try the new agent & orchestrator developer tool.
         </div>
@@ -18,26 +33,30 @@ export default function TopNavigationBar() {
       
       {/* Center - Main navigation */}
       <nav className="hidden md:flex space-x-6">
-        <NavItem 
-          name="Agents" 
-          isSelected={selectedItem === 'agents'} 
-          onClick={() => setSelectedItem('agents')} 
-        />
-        <NavItem 
-          name="Workflows" 
-          isSelected={selectedItem === 'workflows'} 
-          onClick={() => setSelectedItem('workflows')} 
-        />
-        <NavItem 
-          name="Tests" 
-          isSelected={selectedItem === 'tests'} 
-          onClick={() => setSelectedItem('tests')} 
-        />
-        <NavItem 
-          name="Analytics" 
-          isSelected={selectedItem === 'analytics'} 
-          onClick={() => setSelectedItem('analytics')} 
-        />
+        <Link href="/">
+          <NavItem 
+            name="Agents" 
+            isSelected={selectedItem === 'agents'} 
+          />
+        </Link>
+        <Link href="/workflow">
+          <NavItem 
+            name="Workflows" 
+            isSelected={selectedItem === 'workflows'} 
+          />
+        </Link>
+        <Link href="/tests">
+          <NavItem 
+            name="Tests" 
+            isSelected={selectedItem === 'tests'} 
+          />
+        </Link>
+        <Link href="/analytics">
+          <NavItem 
+            name="Analytics" 
+            isSelected={selectedItem === 'analytics'} 
+          />
+        </Link>
       </nav>
       
       {/* Right side - User settings and theme toggle */}
@@ -58,10 +77,9 @@ export default function TopNavigationBar() {
   );
 }
 
-function NavItem({ name, isSelected, onClick }) {
+function NavItem({ name, isSelected }) {
   return (
-    <button
-      onClick={onClick}
+    <span
       className={`px-3 py-2 rounded-md text-sm transition-colors ${
         isSelected 
           ? 'text-primary font-semibold' 
@@ -69,6 +87,6 @@ function NavItem({ name, isSelected, onClick }) {
       }`}
     >
       {name}
-    </button>
+    </span>
   );
 } 
