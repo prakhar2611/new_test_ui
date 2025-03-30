@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -25,15 +25,15 @@ import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import useOrchestratorData from '@/hooks/useOrchestratorData';
 import ChatWindow from '@/components/workflow/ChatWindow';
 
-// Node types registration
-const nodeTypes = {
+// Define node and edge types outside the component
+const NODE_TYPES = {
   agent: AgentNode,
   tool: ToolNode,
   orchestrator: OrchestratorNode,
 };
 
 // Edge types registration
-const edgeTypes = {
+const EDGE_TYPES = {
   custom: CustomEdge,
 };
 
@@ -91,6 +91,10 @@ export default function WorkflowPage() {
   
   // State for chat window
   const [showChat, setShowChat] = useState(false);
+
+  // Use memoized node and edge types
+  const nodeTypes = useMemo(() => NODE_TYPES, []);
+  const edgeTypes = useMemo(() => EDGE_TYPES, []);
 
   // Set the first orchestrator as selected when data loads
   useEffect(() => {
@@ -302,12 +306,12 @@ export default function WorkflowPage() {
   }, [isCreating, saveOrchestrator]);
   
   // Run the selected orchestrator
-  const handleRunOrchestrator = useCallback(async (id, input = "Run the workflow") => {
+  const handleRunOrchestrator = useCallback(async (id, input = "Run the workflow", saveHistory = true) => {
     const orchestratorId = id || selectedOrchestratorId;
     if (!orchestratorId) return;
     
     try {
-      const result = await runOrchestrator(orchestratorId, input);
+      const result = await runOrchestrator(orchestratorId, input, {}, saveHistory);
       return {
         response: result.response || "Orchestrator ran successfully.",
         success: true

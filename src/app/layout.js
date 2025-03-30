@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Fira_Code } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${firaCode.variable} antialiased bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark`}
       >
         <div className="min-h-screen flex flex-col">
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </div>
       </body>
     </html>

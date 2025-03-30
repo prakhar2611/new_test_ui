@@ -1,33 +1,108 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { conversationApi } from '@/services/api';
+import MessageContent from '@/components/chat/MessageContent';
+import { useToast } from '@/components/ui/toast';
 
 export default function ChatWindow({ orchestrator, onRun, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const { toast } = useToast();
   
-  // Add a welcome message when component mounts
+  // Add a welcomeMessage variable at the component level for consistency
+  const welcomeMessage = {
+    role: 'system',
+    content: orchestrator?.name 
+      ? `Welcome to the ${orchestrator.name} orchestrator! Send a message to test it.`
+      : 'Welcome! Select an orchestrator to begin.'
+  };
+  
+  // Fetch conversation history when component mounts
   useEffect(() => {
     if (orchestrator) {
-      setMessages([{
-        role: 'system',
-        content: `Welcome to the ${orchestrator.name} orchestrator! Send a message to test it. Currently this doesn't support prompt caching.`
-      }]);
+      setIsLoadingHistory(true);
       
-      // Focus the input field when the component mounts
+      // Add initial welcome message
+      setMessages([welcomeMessage]);
+      
+      // Fetch conversation history
+      fetchConversationHistory();
+      
+      // Focus the input field
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
   }, [orchestrator]);
   
-  // Scroll to bottom when messages change
+  // Handle scrolling to the most recent message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
+  
+  // Ensure history is properly processed, avoiding null values
+  const processConversationHistory = (history) => {
+    if (!history || !Array.isArray(history)) return [];
+    
+    const formattedMessages = [];
+    
+    history.forEach(item => {
+      if (item && typeof item === 'object') {
+        // Add user message if it exists
+        if (item.user) {
+          formattedMessages.push({
+            role: 'user',
+            content: item.user,
+            timestamp: item.timestamp
+          });
+        }
+        
+        // Add assistant response if it exists
+        if (item.response) {
+          formattedMessages.push({
+            role: 'assistant',
+            content: item.response,
+            timestamp: item.timestamp
+          });
+        }
+      }
+    });
+    
+    return formattedMessages;
+  };
+  
+  // Update fetchConversationHistory with consistent parameter usage
+  const fetchConversationHistory = useCallback(async () => {
+    if (!orchestrator?.id) return;
+    
+    try {
+      setIsLoading(true);
+      const history = await conversationApi.getConversationHistory(orchestrator.id);
+      
+      const formattedMessages = processConversationHistory(history);
+      
+      // Set messages with the welcome message followed by history
+      setMessages(prev => [
+        prev.length > 0 ? prev[0] : welcomeMessage, // Keep welcome message or use default
+        ...formattedMessages
+      ]);
+    } catch (error) {
+      console.error('Error fetching conversation history:', error);
+      setError('Failed to load conversation history');
+      // Set only the welcome message if history fails to load
+      setMessages([welcomeMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [orchestrator, welcomeMessage]);
   
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -69,6 +144,43 @@ export default function ChatWindow({ orchestrator, onRun, onClose }) {
     }
   };
   
+  const handleClearConversation = async () => {
+    if (!orchestrator?.id) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Call API to clear the conversation history
+      await conversationApi.clearConversation(orchestrator.id);
+      
+      // Reset messages to just the welcome message
+      setMessages([welcomeMessage]);
+      
+      // Show success notification
+      toast({
+        title: "Conversation cleared",
+        description: "Your conversation history has been cleared successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error clearing conversation:', error);
+      
+      // Show error notification
+      setError("Failed to clear conversation history. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to clear conversation history.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   if (!orchestrator) return null;
   
   return (
@@ -79,19 +191,40 @@ export default function ChatWindow({ orchestrator, onRun, onClose }) {
           <h2 className="text-lg font-semibold">Test Orchestrator</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">{orchestrator.name}</p>
         </div>
-        <button 
-          onClick={onClose}
-          className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex space-x-2">
+          <button 
+            onClick={handleClearConversation}
+            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            title="Clear conversation"
+            disabled={isLoading}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+          <button 
+            onClick={onClose}
+            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            title="Close chat"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && (
+        {/* Loading indicator for history */}
+        {isLoadingHistory && (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        )}
+        
+        {/* Empty state */}
+        {messages.length === 0 && !isLoadingHistory && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-gray-500 dark:text-gray-400 max-w-xs">
               <svg
@@ -106,6 +239,8 @@ export default function ChatWindow({ orchestrator, onRun, onClose }) {
             </div>
           </div>
         )}
+        
+        {/* Message list */}
         {messages.map((message, index) => (
           <div 
             key={index}
@@ -148,8 +283,8 @@ export default function ChatWindow({ orchestrator, onRun, onClose }) {
                       ? 'System'
                       : 'Orchestrator'}
                 </div>
-                <div className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                  {message.content}
+                <div className="mt-1 text-gray-700 dark:text-gray-300">
+                  <MessageContent content={message.content} />
                 </div>
               </div>
             </div>

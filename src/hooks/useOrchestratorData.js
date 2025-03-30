@@ -170,7 +170,7 @@ export default function useOrchestratorData(selectedOrchestratorId) {
   };
   
   // Run an orchestrator
-  const runOrchestrator = async (orchestratorId, input = "Run the workflow", fields = {}) => {
+  const runOrchestrator = async (orchestratorId, input = "Run the workflow", fields = {}, saveHistory = true) => {
     if (!orchestratorId) {
       throw new Error('No orchestrator selected');
     }
@@ -180,7 +180,8 @@ export default function useOrchestratorData(selectedOrchestratorId) {
       const result = await orchestratorApi.runOrchestrator(
         orchestratorId, 
         input, 
-        fields
+        fields,
+        saveHistory
       );
       return result;
     } catch (error) {

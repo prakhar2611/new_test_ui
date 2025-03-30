@@ -181,26 +181,24 @@ export const orchestratorApi = {
     }
   },
   
-  runOrchestrator: async (id, input, fieldValues, saveHistory = true) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/orchestrators/${id}/run`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_input: input,
-          prompt_field_values: fieldValues,
-          save_history: saveHistory,
-        }),
-      });
-      
-      if (!response.ok) throw new Error(`Failed to run orchestrator with ID: ${id}`);
-      return await response.json();
-    } catch (error) {
-      console.error(`Error running orchestrator ${id}:`, error);
-      throw error;
+  runOrchestrator: async (id, user_input = "Run the workflow", prompt_field_values = {}, save_history = true) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orchestrators/${id}/run`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_input,
+        prompt_field_values,
+        save_history
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to run orchestrator: ${response.status}`);
     }
+    
+    return response.json();
   },
   
   getHistory: async (id) => {
@@ -226,5 +224,89 @@ export const toolsApi = {
       console.error('Error fetching available tools:', error);
       throw error;
     }
+  }
+};
+
+// Add conversation API service
+export const conversationApi = {
+  // Get all conversations
+  getAll: async () => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/conversations/`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch conversations: ${response.status}`);
+    }
+    return response.json();
+  },
+  
+  // Get conversation by ID with optional pagination and filtering
+  getById: async (id, options = {}) => {
+    const { limit = 50, offset = 0, sort = 'desc', startDate, endDate } = options;
+    
+    let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/conversations/${id}?limit=${limit}&offset=${offset}&sort=${sort}`;
+    
+    if (startDate) url += `&start_date=${startDate}`;
+    if (endDate) url += `&end_date=${endDate}`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch conversation: ${response.status}`);
+    }
+    return response.json();
+  },
+  
+  // Get conversation history for an orchestrator
+  getConversationHistory: async (orchestratorId) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/orchestrators/${orchestratorId}/history`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch conversation history: ${response.status}`);
+    }
+    return response.json();
+  },
+  
+  // Search conversations by query
+  search: async (query, limit = 20) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/conversations/search?query=${encodeURIComponent(query)}&limit=${limit}`
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to search conversations: ${response.status}`);
+    }
+    return response.json();
+  },
+  
+  // Delete a conversation
+  delete: async (id) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/conversations/${id}`,
+      { method: 'DELETE' }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to delete conversation: ${response.status}`);
+    }
+    return true;
+  },
+  
+  // Clear conversation messages
+  clearMessages: async (id) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/conversations/${id}/messages`,
+      { method: 'DELETE' }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to clear conversation messages: ${response.status}`);
+    }
+    return true;
+  },
+  
+  // Clear conversation history for an orchestrator
+  clearConversation: async (orchestratorId) => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/orchestrators/${orchestratorId}/history`,
+      { method: 'DELETE' }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to clear conversation history: ${response.status}`);
+    }
+    return true;
   }
 }; 
