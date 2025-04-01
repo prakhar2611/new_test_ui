@@ -23,7 +23,6 @@ import OrchestratorModal from '@/components/workflow/OrchestratorModal';
 import HelpOverlay from '@/components/workflow/HelpOverlay';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import useOrchestratorData from '@/hooks/useOrchestratorData';
-import ChatWindow from '@/components/workflow/ChatWindow';
 
 // Define node and edge types outside the component
 const NODE_TYPES = {
@@ -88,9 +87,6 @@ export default function WorkflowPage() {
   
   // State for help overlay
   const [showHelp, setShowHelp] = useState(false);
-  
-  // State for chat window
-  const [showChat, setShowChat] = useState(false);
 
   // Use memoized node and edge types
   const nodeTypes = useMemo(() => NODE_TYPES, []);
@@ -496,16 +492,6 @@ export default function WorkflowPage() {
             orchestrator={orchestratorDetails}
             onEdit={handleEditOrchestrator}
             onRun={handleRunOrchestrator}
-            onOpenChat={() => setShowChat(true)}
-          />
-        )}
-        
-        {/* Chat Window for Testing */}
-        {showChat && orchestratorDetails && (
-          <ChatWindow
-            orchestrator={orchestratorDetails}
-            onRun={handleRunOrchestrator}
-            onClose={() => setShowChat(false)}
           />
         )}
         

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 
-export default function OrchestratorPanel({ orchestrator, onEdit, onRun, onOpenChat }) {
+export default function OrchestratorPanel({ orchestrator, onEdit, onRun }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [response, setResponse] = useState('');
@@ -80,7 +81,7 @@ export default function OrchestratorPanel({ orchestrator, onEdit, onRun, onOpenC
               <li>Drag agents and tools from the sidebar to the canvas</li>
               <li>Connect the components by dragging between handles</li>
               <li>Click 'Edit' to modify orchestrator properties</li>
-              <li>Click 'Test in Chat' to interact with your orchestrator</li>
+              <li>Use 'Run in Chat' to interact with your orchestrator</li>
               <li>Or use 'Quick Run' to test with a default prompt</li>
             </ol>
           </div>
@@ -91,12 +92,12 @@ export default function OrchestratorPanel({ orchestrator, onEdit, onRun, onOpenC
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Actions</h3>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <button 
-                className="px-4 py-2 bg-primary text-black rounded-md text-sm hover:bg-blue-600 hover:text-white transition-colors flex-1"
-                onClick={onOpenChat}
+              <Link 
+                href={`/run-agent?id=${orchestrator.id}`}
+                className="px-4 py-2 bg-primary text-black rounded-md text-sm hover:bg-blue-600 hover:text-white transition-colors flex-1 text-center"
               >
-                Test in Chat
-              </button>
+                Run in Chat
+              </Link>
               <button 
                 className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex-1"
                 onClick={onEdit}

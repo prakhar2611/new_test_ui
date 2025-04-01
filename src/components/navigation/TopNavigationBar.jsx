@@ -14,6 +14,8 @@ export default function TopNavigationBar() {
       setSelectedItem('agents');
     } else if (pathname === '/workflow') {
       setSelectedItem('workflows');
+    } else if (pathname === '/run-agent') {
+      setSelectedItem('run-agent');
     } else if (pathname === '/tests') {
       setSelectedItem('tests');
     } else if (pathname === '/analytics') {
@@ -43,6 +45,12 @@ export default function TopNavigationBar() {
           <NavItem 
             name="Workflows" 
             isSelected={selectedItem === 'workflows'} 
+          />
+        </Link>
+        <Link href="/run-agent">
+          <NavItem 
+            name="Run Agent" 
+            isSelected={selectedItem === 'run-agent'} 
           />
         </Link>
         <Link href="/tests">
